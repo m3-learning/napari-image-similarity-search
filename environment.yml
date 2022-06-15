@@ -1,0 +1,12 @@
+name: napari_image_similarity_search
+dependencies:
+  - python
+  - pip
+  - pip:
+      - napari
+      - matplotlib
+      - numpy
+      - Pillow
+      - umap-learn
+      - PyQt5
+      - napari-image-similarity-search

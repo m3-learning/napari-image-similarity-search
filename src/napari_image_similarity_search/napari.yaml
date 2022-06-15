@@ -1,0 +1,11 @@
+name: napari-image-similarity-search
+display_name: Image Similarity Search
+contributions:
+  commands:
+    - id: napari-image-similarity-search.create_main_window
+      title: Create Image Similarity Search Plugin
+      python_name: napari_image_similarity_search.main_window:MainWindow
+
+  widgets:
+    - command: napari-image-similarity-search.create_main_window
+      display_name: Image Similarity Search
