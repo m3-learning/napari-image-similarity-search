@@ -9,4 +9,5 @@ dependencies:
       - Pillow
       - umap-learn
       - PyQt5
+      - qtpy
       - napari-image-similarity-search

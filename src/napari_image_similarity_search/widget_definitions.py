@@ -5,13 +5,28 @@ import napari
 
 viewer = napari.Viewer()
 
-# creating graph with images and retrieving points
 def get_UMAP(imgs, params):
-    x_1 = np.asarray(imgs)  # convert images to array
-    nsamples, nx, ny, nz = x_1.shape
-    data = x_1.reshape((nsamples, nx * ny * nz))  # reshape data for UMAP
+    """Generates UMAP from supplied images and parameters
 
-    # allow for choice of UMAP params and monitor embedding
+    Parameters
+    ----------
+    imgs : list
+        selected images to input into UMAP algorithm
+    params : dict
+        UMAP parameters to manipulate embedding
+
+    Returns
+    -------
+    x : list
+        list of x-coordinates of all images in UMAP
+    y : list
+        list of y-coordinates of all images in UMAP
+
+    """
+    x_1 = np.asarray(imgs)
+    nsamples, nx, ny, nz = x_1.shape
+    data = x_1.reshape((nsamples, nx * ny * nz))
+
     embedding_UMAP = umap.UMAP(**params).fit_transform(data)
     x = embedding_UMAP[:, 0]
     y = embedding_UMAP[:, 1]
@@ -26,11 +41,14 @@ def get_points(x, y):
     UMAP_points = figure.get_offsets().data
     return UMAP_points
 
+    Parameters
+    ----------
+    x : list
+        list of x-coordinates of all images in UMAP
+    y : list
+        list of y-coordinates of all images in UMAP
 
-# creates image coordinates from scatter plot points
-def find_coordinates(points):
-    x_coords = []
-    y_coords = []
+    """
 
     for coordinates in points:
         x_coord = coordinates[0]
@@ -52,12 +70,31 @@ def dist(p0, p1):
 
 # find distance between each image on the canvas and get appropriate scale factor for napari canvas
 def scale_distance(points, img_width):
+    """Finds distance between each image on the canvas and calculates an appropriate scale factor for optimizing the
+    view of the images on the napari canvas.  Scale factor is based on distance standard deviation and image size.
+
+    Parameters
+    ----------
+    points : list
+        respective coordinate points of each image on the canvas from UMAP embedding
+    img_width : int
+        Width of of all images embedded in UMAP algorithm
+
+
+    Returns
+    -------
+    len_of_array : int
+        maximum length of canvas dimension required to properly show all images on canvas
+    scale_factor : int
+        factor by which distances between images are scaled to properly display on canvas
+
+    """
+
     distances = []
     for i in range(len(points) - 1):
         for j in range(i + 1, len(points)):
-            distances += [dist(points[i], points[j])]  # distance of each image from each other
+            distances += [dist(points[i], points[j])]
 
-    # finds scale factor for image distance based on distance standard deviation and image size
     dist_std = np.std(distances)
     std_width_ratio = img_width / dist_std
 
@@ -83,13 +120,35 @@ def scale_distance(points, img_width):
     return len_of_array, scale_factor
 
 
-# rescales points based on new scaled distance between points based on scale_factor
-def rescale_points(x_coord_max, x_coord_min, y_coord_max, y_coord_min, len_of_array, x_coords, y_coords, scale_factor):
-    # rename variables for clarity
-    old_max_x = x_coord_max
-    old_min_x = x_coord_min
-    old_min_y = y_coord_min
-    old_max_y = y_coord_max
+def rescale_points(old_max_x, old_min_x, old_max_y, old_min_y, len_of_array, old_x, old_y, scale_factor):
+    """Redefines image coordinates for viewing on napari canvas based on new scaled distance between points
+
+    Parameters
+    ----------
+    old_max_x : int
+        previous maximum value of x coordinate
+    old_min_x : int
+        previous minimum value of x coordinate
+    old_max_y : int
+        previous maximum value of y coordinate
+    old_min_y : int
+        previous minimum value of y coordinate
+    len_of_array : int
+        maximum length of canvas dimension required to properly show all images on canvas
+    scale_factor : int
+        factor by which distances between images are scaled to properly display on canvas
+    old_y : list
+        previous list of y-coordinates of all images in UMAP
+    old_x : list
+        previous list of x-coordinates of all images in UMAP
+
+
+    Returns
+    -------
+    scaled_coords : list
+        list of all image coordinates properly scaled to be displayed on napari canvas
+
+    """
 
     # new vales for min and max values of x and y
     new_max_x = len_of_array
@@ -106,10 +165,10 @@ def rescale_points(x_coord_max, x_coord_min, y_coord_max, y_coord_min, len_of_ar
     scaled_values_x = []
 
     # find new coordinates for each images using scaling factor
-    for old_value_x in x_coords:
+    for old_value_x in old_x:
         new_value_x = int((((old_value_x - old_min_x) * new_range_x) / old_range_x) + new_min_x)
         scaled_values_x.append(new_value_x)
-    for old_value_y in y_coords:
+    for old_value_y in old_y:
         new_value_y = int((((old_value_y - old_min_y) * new_range_y) / old_range_y) + new_min_y)
         scaled_values_y.append(new_value_y)
 
@@ -119,9 +178,17 @@ def rescale_points(x_coord_max, x_coord_min, y_coord_max, y_coord_min, len_of_ar
     return scaled_coords
 
 
-# defines napari viewer size by new image coordinates and inputs images
 def view_UMAP(scaled_coords, imgs):
-    # get min and max values of scaled x and y coordinates
+    """Defines napari canvas size by new image coordinates and loads images into viewer
+
+    Parameters
+    ----------
+    scaled_coords : list
+        list of all image coordinates properly scaled to be displayed on napari canvas
+    imgs : list
+        list of all selected images
+
+    """
     x_coord_min = min(scaled_coords[:, 0])
     x_coord_max = max(scaled_coords[:, 0])
 

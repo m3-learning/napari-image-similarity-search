@@ -39,6 +39,18 @@ To install latest development version :
 Distributed under the terms of the [BSD-3] license,
 "napari-image-similarity-search" is free and open source software
 
+## Start-Up Tutorial
+
+- Install "napari-image-similarity-search"
+- In a terminal, start a python session and enter:
+
+```python
+import napari_image_similarity_search
+napari_image_similarity_search.main()
+```
+![napari viewer with image similarity search plug-in.](resources/image_similarity_search_startup.png)
+
+
 ## Issues
 
 If you encounter any problems, please [file an issue] along with a detailed description.

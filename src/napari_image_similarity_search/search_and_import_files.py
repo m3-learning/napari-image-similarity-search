@@ -9,11 +9,19 @@ import sys
 
 # appends image paths from files to a list to use in UMAP creation
 class SearchFiles(qtw.QFileDialog):
+    """appends image paths from selected user files to a list to use in UMAP creation"""
+
     images = []
+    """list of images selected by user from files in viewable form"""
     imgpaths = []
+    """list of file paths to selected image files"""
     img_arrays = []
+    """list of selected images in ndarray form"""
     img_coords_dict = {}
+    """dictionary of images and their respective coordinates from UMAP embedding"""
     img_width = 0
+    """The width of all images selected for viewing. Image width must be same for all images; ImageResizeWarning() is 
+    called if all images are not of same size."""
 
     def __init__(self):
         super().__init__()
@@ -81,7 +89,11 @@ class SearchFiles(qtw.QFileDialog):
             self.setVisible(False)
 
 class ImageResizeWarning(qtw.QMessageBox):
+    """Message box that warns users that selected images do not have the same dimensions and will be resized unless
+    user chooses to restart plugin with new image with all same dimensions"""
+
     irw_img_width = 0
+    """the average image width of all chosen images and the width that all image dimensions will be resized to"""
 
     def __init__(self):
         super(ImageResizeWarning, self).__init__()
@@ -115,6 +127,18 @@ class ImageResizeWarning(qtw.QMessageBox):
 
 
 def get_image_coords():
+    """retrieves data about selected user images including the images paths, sizes, and arrays
+
+    Returns
+    -------
+    sf_img_coords_dict : dict
+        dictionary of images and their UMAP embedding coordinates from SearchFiles() class
+    img_dim : int
+        dimension of all images selected
+    sf_img_arrays : list of ndarrays
+        list of the ndarray format of images selected from SearchFiles() class
+
+    """
     sf_img_coords_dict = SearchFiles.img_coords_dict
     sf_img_arrays = SearchFiles.img_arrays
     sf_img_width = SearchFiles.img_width
