@@ -1,6 +1,5 @@
 import numpy as np
 import umap.umap_ as umap
-import matplotlib.pyplot as plt
 import napari
 
 viewer = napari.Viewer()
@@ -31,15 +30,10 @@ def get_UMAP(imgs, params):
     x = embedding_UMAP[:, 0]
     y = embedding_UMAP[:, 1]
 
-    return x, y
+    return x, y, embedding_UMAP
 
-
-# gets points from generated scatter plot
-def get_points(x, y):
-    figure, ax = plt.subplots()
-    figure = ax.scatter(x, y)
-    UMAP_points = figure.get_offsets().data
-    return UMAP_points
+def find_coordinates(x, y):
+    """Find maximum and minimum values for both x and y coordinates of images in UMAP embedding
 
     Parameters
     ----------
@@ -50,23 +44,12 @@ def get_points(x, y):
 
     """
 
-    for coordinates in points:
-        x_coord = coordinates[0]
-        y_coord = coordinates[1]
-        x_coords.append(x_coord)
-        y_coords.append(y_coord)
+    y_min = min(y)
+    x_min = min(x)
+    y_max = max(y)
+    x_max = max(x)
+    return x_max, x_min, y_max, y_min
 
-    # get min and max coordinates for x and y axes of all images
-    y_coord_min = min(y_coords)
-    x_coord_min = min(x_coords)
-    y_coord_max = max(y_coords)
-    x_coord_max = max(x_coords)
-    return x_coord_max, x_coord_min, y_coord_max, y_coord_min, x_coords, y_coords
-
-
-# finds min and max distances between points
-def dist(p0, p1):
-    return (((p0[0] - p1[0]) ** 2) + ((p0[1] - p1[1]) ** 2)) ** .5
 
 # find distance between each image on the canvas and get appropriate scale factor for napari canvas
 def scale_distance(points, img_width):
@@ -91,6 +74,11 @@ def scale_distance(points, img_width):
     """
 
     distances = []
+
+    # finds min and max distances between points
+    def dist(p0, p1):
+        return (((p0[0] - p1[0]) ** 2) + ((p0[1] - p1[1]) ** 2)) ** .5
+
     for i in range(len(points) - 1):
         for j in range(i + 1, len(points)):
             distances += [dist(points[i], points[j])]

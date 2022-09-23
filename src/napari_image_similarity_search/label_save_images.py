@@ -204,13 +204,11 @@ class LabelSaveImages(qtw.QWidget):
         self.viewer.layers.select_all()
         self.viewer.layers.remove_selected()
 
-        new_x, new_y = wd.get_UMAP(self.list_imgs, params_dict)
-        new_UMAP_points = wd.get_points(new_x, new_y)
-        new_x_max, new_x_min, new_y_max, new_y_min, new_x_coords, new_y_coords = wd.find_coordinates(
-            new_UMAP_points)
-        new_len_of_array, scale_factor = wd.scale_distance(new_UMAP_points, img_width)
+        new_x, new_y, new_x_y_list = wd.get_UMAP(self.list_imgs, params_dict)
+        new_x_max, new_x_min, new_y_max, new_y_min = wd.find_coordinates(new_x, new_y)
+        new_len_of_array, scale_factor = wd.scale_distance(new_x_y_list, img_width)
         new_scaled_coords = wd.rescale_points(new_x_max, new_x_min, new_y_max, new_y_min, new_len_of_array,
-                                              new_x_coords, new_y_coords, scale_factor)
+                                              new_x, new_y, scale_factor)
         wd.view_UMAP(new_scaled_coords, self.list_imgs)
 
     # returns user to original UMAP projection

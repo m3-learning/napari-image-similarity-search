@@ -196,13 +196,12 @@ class UMAPParams(qtw.QWidget):
         img_coords_dict, img_width, _ = get_image_coords()
 
         # generate UMAP from selected files and parameters
-        x, y = wd.get_UMAP(SearchFiles.img_arrays, params_dict)
-        UMAP_points = wd.get_points(x, y)
-        x_coord_max, x_coord_min, y_coord_max, y_coord_min, x_coords, y_coords = wd.find_coordinates(
-            UMAP_points)
-        len_of_array, scale_factor = wd.scale_distance(UMAP_points, img_width)
-        scaled_coordinates = wd.rescale_points(x_coord_max, x_coord_min, y_coord_max, y_coord_min, len_of_array,
-                                               x_coords, y_coords, scale_factor)
+        x, y, x_y_list = wd.get_UMAP(SearchFiles.img_arrays, params_dict)
+        x_max, x_min, y_max, y_min = wd.find_coordinates(x, y)
+
+        len_of_array, scale_factor = wd.scale_distance(x_y_list, img_width)
+        scaled_coordinates = wd.rescale_points(x_max, x_min, y_max, y_min, len_of_array,
+                                               x, y, scale_factor)
         # split array to get coordinates for each image
         split_scaled_coords = np.vsplit(scaled_coordinates, len(scaled_coordinates))
         img_coords_dict['coords'] = split_scaled_coords
